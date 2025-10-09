@@ -8,10 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Role
 {
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
         if (! $request->user() || ! $request->user()->hasRole($role)) {
-            abort(403, 'Unauthorized');
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         return $next($request);

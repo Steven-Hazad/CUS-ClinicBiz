@@ -14,7 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Add role to fillable
+        'role',
     ];
 
     protected $hidden = [
@@ -27,8 +27,7 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Check user role
-    public function hasRole($role)
+    public function hasRole(string $role): bool
     {
         return $this->role === $role;
     }

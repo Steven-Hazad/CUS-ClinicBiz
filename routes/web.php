@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PatientRegistrationController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin')
         ->name('admin.dashboard');
 });
+ Route::get('/receptionist/patient/register', [PatientRegistrationController::class, 'create'])
+        ->middleware('role:admin,receptionist')
+        ->name('receptionist.patient.register');
+
+    Route::post('/receptionist/patient/register', [PatientRegistrationController::class, 'store'])
+        ->middleware('role:admin,receptionist')
+        ->name('receptionist.patient.register.store');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

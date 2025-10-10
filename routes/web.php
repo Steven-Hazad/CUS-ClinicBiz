@@ -5,6 +5,7 @@ use App\Http\Controllers\PatientRegistrationController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReceptionistAppointmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,13 +26,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/patients/{patient}', [AdminController::class, 'updatePatient'])->name('admin.patients.update');
     });
 
- Route::get('/receptionist/patient/register', [PatientRegistrationController::class, 'create'])
-        ->middleware('role:admin,receptionist')
-        ->name('receptionist.patient.register');
+    Route::prefix('receptionist')->middleware('role:admin,receptionist')->group(function () {
+        Route::get('/dashboard', function () {
+            return view('receptionist.dashboard');
+        })->name('receptionist.dashboard');
+        Route::get('/patient/register', [PatientRegistrationController::class, 'create'])->name('receptionist.patient.register');
+        Route::post('/patient/register', [PatientRegistrationController::class, 'store'])->name('receptionist.patient.register.store');
+        Route::get('/appointments', [ReceptionistAppointmentController::class, 'index'])->name('receptionist.appointments.index');
+        Route::patch('/appointments/{appointment}', [ReceptionistAppointmentController::class, 'updateStatus'])->name('receptionist.appointments.update');
+    });
 
-    Route::post('/receptionist/patient/register', [PatientRegistrationController::class, 'store'])
-        ->middleware('role:admin,receptionist')
-        ->name('receptionist.patient.register.store');
+
  Route::get('/patient/appointment/book', [AppointmentController::class, 'create'])
         ->middleware('role:patient')
         ->name('patient.appointment.book');

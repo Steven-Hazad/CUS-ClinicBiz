@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -36,5 +37,52 @@ class AdminController extends Controller
             'dates',
             'appointmentCounts'
         ));
+    }
+
+    public function patients(Request $request)
+    {
+        $search = $request->query('search');
+        $patients = Patient::with('user')
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(10);
+
+        return view('admin.patients.index', compact('patients', 'search'));
+    }
+
+    public function editPatient(Patient $patient)
+    {
+        return view('admin.patients.edit', compact('patient'));
+    }
+
+    public function updatePatient(Request $request, Patient $patient)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($patient->user->id)],
+            'gender' => ['required', Rule::in(['male', 'female', 'other'])],
+            'dob' => 'required|date|before:today',
+            'contact' => 'required|string|max:20',
+            'medical_history' => 'nullable|string|max:1000',
+        ]);
+
+        $patient->user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        $patient->update([
+            'gender' => $validated['gender'],
+            'dob' => $validated['dob'],
+            'contact' => $validated['contact'],
+            'medical_history' => $validated['medical_history'],
+        ]);
+
+        return redirect()->route('admin.patients.index')
+            ->with('success', 'Patient updated successfully.');
     }
 }

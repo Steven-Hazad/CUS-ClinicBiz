@@ -16,10 +16,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])
-        ->middleware('role:admin')
-        ->name('admin.dashboard');
-});
+
+    
+    Route::prefix('admin')->middleware('role:admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        Route::get('/patients', [AdminController::class, 'patients'])->name('admin.patients.index');
+        Route::get('/patients/{patient}/edit', [AdminController::class, 'editPatient'])->name('admin.patients.edit');
+        Route::put('/patients/{patient}', [AdminController::class, 'updatePatient'])->name('admin.patients.update');
+    });
+
  Route::get('/receptionist/patient/register', [PatientRegistrationController::class, 'create'])
         ->middleware('role:admin,receptionist')
         ->name('receptionist.patient.register');
@@ -42,6 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:doctor')
         ->name('doctor.appointment.update');
     
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -1,8 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Admin Dashboard
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Admin Dashboard
+            </h2>
+            <a href="{{ route('admin.patients.index') }}"
+               class="text-blue-500 hover:underline">Manage Patients</a>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -73,7 +77,9 @@
                                 <tr>
                                     <td class="border px-4 py-2">{{ $appointment->patient->user->name }}</td>
                                     <td class="border px-4 py-2">{{ $appointment->doctor->user->name }}</td>
-<td class="border px-4 py-2">{{ date('M d, Y H:i', strtotime($appointment->appointment_date)) }}</td>
+                                    <td class="border px-4 py-2">
+                                        {{ $appointment->appointment_date ? \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y H:i') : '' }}
+                                    </td>
                                     <td class="border px-4 py-2">{{ ucfirst($appointment->status) }}</td>
                                 </tr>
                             @endforeach

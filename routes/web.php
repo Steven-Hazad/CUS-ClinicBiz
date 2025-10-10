@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PatientRegistrationController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/patient/appointment/book', [AppointmentController::class, 'store'])
         ->middleware('role:patient')
         ->name('patient.appointment.book.store');
+         Route::get('/doctor/dashboard', [DoctorController::class, 'index'])
+        ->middleware('role:doctor')
+        ->name('doctor.dashboard');
+
+    Route::patch('/doctor/appointment/{appointment}', [DoctorController::class, 'updateAppointmentStatus'])
+        ->middleware('role:doctor')
+        ->name('doctor.appointment.update');
+    
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

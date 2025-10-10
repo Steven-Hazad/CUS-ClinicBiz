@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PatientRegistrationController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +26,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/receptionist/patient/register', [PatientRegistrationController::class, 'store'])
         ->middleware('role:admin,receptionist')
         ->name('receptionist.patient.register.store');
+ Route::get('/patient/appointment/book', [AppointmentController::class, 'create'])
+        ->middleware('role:patient')
+        ->name('patient.appointment.book');
 
+    Route::post('/patient/appointment/book', [AppointmentController::class, 'store'])
+        ->middleware('role:patient')
+        ->name('patient.appointment.book.store');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

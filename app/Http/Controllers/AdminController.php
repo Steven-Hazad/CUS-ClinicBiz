@@ -85,4 +85,18 @@ class AdminController extends Controller
         return redirect()->route('admin.patients.index')
             ->with('success', 'Patient updated successfully.');
     }
+    public function analytics()
+    {
+        $totalAppointments = Appointment::count();
+        $byStatus = Appointment::select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status');
+        $byDate = Appointment::select(\DB::raw('DATE(appointment_date) as date'), \DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->take(7)
+            ->get();
+
+        return view('admin.analytics', compact('totalAppointments', 'byStatus', 'byDate'));
+    }
 }

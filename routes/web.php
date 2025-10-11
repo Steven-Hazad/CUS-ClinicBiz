@@ -26,6 +26,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/patients', [AdminController::class, 'patients'])->name('admin.patients.index');
         Route::get('/patients/{patient}/edit', [AdminController::class, 'editPatient'])->name('admin.patients.edit');
         Route::put('/patients/{patient}', [AdminController::class, 'updatePatient'])->name('admin.patients.update');
+                Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
+
     });
 
     Route::prefix('receptionist')->middleware('role:admin,receptionist')->group(function () {
@@ -55,13 +57,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/patient/appointment/{appointment}/reschedule', [PatientController::class, 'reschedule'])
         ->middleware('role:patient')
         ->name('patient.reschedule');
-        
+
     Route::patch('/doctor/appointment/{appointment}', [DoctorController::class, 'updateAppointmentStatus'])
         ->middleware('role:doctor')
         ->name('doctor.appointment.update');
     
 });
-
+  Route::post('/doctor/availability', [DoctorController::class, 'storeAvailability'])
+        ->middleware('role:doctor')
+        ->name('doctor.storeAvailability');
+        
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

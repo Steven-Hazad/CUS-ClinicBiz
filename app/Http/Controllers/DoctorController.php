@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Availability;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Notifications\NewAvailabilityNotification;
 
 class DoctorController extends Controller
 {
@@ -26,7 +27,7 @@ class DoctorController extends Controller
             ->take(5)
             ->get();
 
-        $availabilities = Availability::where('doctor_id', $doctor->id)->get();
+        $availabilities = $doctor->availabilities()->get();
 
         return view('doctor.dashboard', compact('upcomingAppointments', 'pastAppointments', 'doctor', 'availabilities'));
     }
@@ -70,13 +71,21 @@ class DoctorController extends Controller
             return back()->withErrors(['message' => 'Conflict with existing appointments.']);
         }
 
-        Availability::create([
+        $availability = Availability::create([
             'doctor_id' => $doctor->id,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
         ]);
 
+        $patients = \App\Models\Patient::whereHas('appointments', function ($query) use ($doctor) {
+            $query->where('doctor_id', $doctor->id);
+        })->get();
+
+        foreach ($patients as $patient) {
+            $patient->user->notify((new NewAvailabilityNotification($availability))->onQueue('notifications'));
+        }
+
         return redirect()->route('doctor.dashboard')
-            ->with('success', 'Availability slot added.');
+            ->with('success', 'Availability slot added and patients notified.');
     }
 }

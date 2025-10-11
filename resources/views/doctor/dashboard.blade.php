@@ -51,7 +51,7 @@
                             @forelse ($upcomingAppointments as $appointment)
                                 <tr>
                                     <td class="border px-4 py-2">{{ $appointment->patient->user->name }}</td>
-                                    <td class="border px-4 py-2">{{ $appointment->appointment_date->format('M d, Y H:i') }}</td>
+                                    <td class="border px-4 py-2">{{ $appointment->appointment_date ? \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y H:i') : '' }}</td>
                                     <td class="border px-4 py-2">{{ ucfirst($appointment->status) }}</td>
                                     <td class="border px-4 py-2">
                                         <form action="{{ route('doctor.appointment.update', $appointment) }}" method="POST">
@@ -91,7 +91,7 @@
                             @forelse ($pastAppointments as $appointment)
                                 <tr>
                                     <td class="border px-4 py-2">{{ $appointment->patient->user->name }}</td>
-                                    <td class="border px-4 py-2">{{ $appointment->appointment_date->format('M d, Y H:i') }}</td>
+                                    <td class="border px-4 py-2">{{ $appointment->appointment_date ? \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y H:i') : '' }}</td>
                                     <td class="border px-4 py-2">{{ ucfirst($appointment->status) }}</td>
                                 </tr>
                             @empty

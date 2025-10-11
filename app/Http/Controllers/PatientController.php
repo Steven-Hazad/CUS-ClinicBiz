@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Availability;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -44,5 +45,31 @@ class PatientController extends Controller
 
         return redirect()->route('patient.dashboard')
             ->with('success', 'Appointment rescheduled successfully.');
+    }
+
+    public function confirm(Availability $availability)
+    {
+        return view('patient.confirm', compact('availability'));
+    }
+
+    public function book(Request $request, Availability $availability)
+    {
+        $request->validate([
+            'appointment_date' => 'required|date|after:now|before:' . $availability->end_time,
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $appointment = Appointment::create([
+            'patient_id' => auth()->user()->patient->id,
+            'doctor_id' => $availability->doctor_id,
+            'appointment_date' => $request->appointment_date,
+            'status' => 'pending',
+            'notes' => $request->notes,
+        ]);
+
+        $availability->update(['available' => false]);
+
+        return redirect()->route('patient.dashboard')
+            ->with('success', 'Appointment booked successfully!');
     }
 }

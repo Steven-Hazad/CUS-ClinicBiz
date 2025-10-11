@@ -54,7 +54,7 @@
                         <tbody>
                             @forelse ($byDate as $day)
                                 <tr>
-                                    <td class="border px-4 py-2">{{ $day->date }}</td>
+                                    <td class="border px-4 py-2">{{ $day->date }}</td   >
                                     <td class="border px-4 py-2">{{ $day->count }}</td>
                                 </tr>
                             @empty

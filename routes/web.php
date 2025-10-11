@@ -67,6 +67,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:doctor')
         ->name('doctor.storeAvailability');
         
+         Route::get('/patient/confirm/{availability}', [PatientController::class, 'confirm'])
+        ->middleware('role:patient')
+        ->name('patient.confirm');
+
+    Route::post('/patient/book/{availability}', [PatientController::class, 'book'])
+        ->middleware('role:patient')
+        ->name('patient.book');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

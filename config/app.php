@@ -122,5 +122,10 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
+'view' => [
+         'paths' => [
+             resource_path('views'),
+         ],
+         'compiled' => env('VIEW_COMPILED_PATH', realpath(storage_path('framework/views'))),
+     ],
 ];

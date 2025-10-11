@@ -5,7 +5,9 @@ use App\Http\Controllers\PatientRegistrationController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReceptionistAppointmentController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -47,7 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
          Route::get('/doctor/dashboard', [DoctorController::class, 'index'])
         ->middleware('role:doctor')
         ->name('doctor.dashboard');
-
+    Route::get('/patient/dashboard', [PatientController::class, 'dashboard'])
+        ->middleware('role:patient')
+        ->name('patient.dashboard');
+            Route::patch('/patient/appointment/{appointment}/reschedule', [PatientController::class, 'reschedule'])
+        ->middleware('role:patient')
+        ->name('patient.reschedule');
+        
     Route::patch('/doctor/appointment/{appointment}', [DoctorController::class, 'updateAppointmentStatus'])
         ->middleware('role:doctor')
         ->name('doctor.appointment.update');

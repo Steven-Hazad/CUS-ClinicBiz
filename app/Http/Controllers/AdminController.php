@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
+use App\Models\Billing;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -182,5 +183,11 @@ class AdminController extends Controller
 
         return redirect()->route('admin.doctors.index')
             ->with('success', 'Doctor updated successfully.');
+    }
+
+    public function billings()
+    {
+        $billings = Billing::with('appointment.patient.user', 'appointment.doctor.user')->paginate(10);
+        return view('admin.billings.index', compact('billings'));
     }
 }

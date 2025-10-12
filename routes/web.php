@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/doctors', [AdminController::class, 'storeDoctor'])->name('admin.doctors.store');
         Route::get('/doctors/{doctor}/edit', [AdminController::class, 'editDoctor'])->name('admin.doctors.edit');
         Route::put('/doctors/{doctor}', [AdminController::class, 'updateDoctor'])->name('admin.doctors.update');
+        Route::get('/billings', [AdminController::class, 'billings'])->name('admin.billings.index');
     });
 
     Route::prefix('receptionist')->middleware('role:admin,receptionist')->group(function () {
@@ -69,14 +70,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:patient')
         ->name('patient.book');
     Route::get('/doctor/medical-history/{patient}', [DoctorController::class, 'viewMedicalHistory'])
-    ->middleware('role:doctor')
-    ->name('doctor.medical-history');
-});
+        ->middleware('role:doctor')
+        ->name('doctor.medical-history');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

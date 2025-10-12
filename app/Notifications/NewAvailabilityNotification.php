@@ -34,3 +34,4 @@ class NewAvailabilityNotification extends Notification
             ->line('Thank you for using MedSync!');
     }
 }
+    

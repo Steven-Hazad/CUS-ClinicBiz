@@ -24,7 +24,7 @@ class AppointmentController extends Controller
         ]);
 
         $doctor = Doctor::findOrFail($validated['doctor_id']);
-        $schedule = json_decode($doctor->schedule, true);
+        $schedule = $doctor->schedule; // Already an array due to casts
         $day = Carbon::parse($validated['appointment_date'])->format('l');
         $time = $validated['appointment_time'];
 

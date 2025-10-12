@@ -88,4 +88,13 @@ class DoctorController extends Controller
         return redirect()->route('doctor.dashboard')
             ->with('success', 'Availability slot added and patients notified.');
     }
+
+    public function viewMedicalHistory(\App\Models\Patient $patient)
+    {
+        if (!auth()->user()->doctor->appointments()->where('patient_id', $patient->id)->exists()) {
+            return back()->withErrors(['message' => 'Unauthorized access to patient history.']);
+        }
+
+        return view('doctor.medical-history', compact('patient'));
+    }
 }

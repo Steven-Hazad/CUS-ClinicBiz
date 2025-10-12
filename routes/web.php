@@ -7,7 +7,6 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReceptionistAppointmentController;
-
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,15 +18,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-
-    
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/patients', [AdminController::class, 'patients'])->name('admin.patients.index');
         Route::get('/patients/{patient}/edit', [AdminController::class, 'editPatient'])->name('admin.patients.edit');
         Route::put('/patients/{patient}', [AdminController::class, 'updatePatient'])->name('admin.patients.update');
-                Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
-
+        Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
+        Route::get('/doctors', [AdminController::class, 'doctors'])->name('admin.doctors.index');
+        Route::get('/doctors/create', [AdminController::class, 'createDoctor'])->name('admin.doctors.create');
+        Route::post('/doctors', [AdminController::class, 'storeDoctor'])->name('admin.doctors.store');
+        Route::get('/doctors/{doctor}/edit', [AdminController::class, 'editDoctor'])->name('admin.doctors.edit');
+        Route::put('/doctors/{doctor}', [AdminController::class, 'updateDoctor'])->name('admin.doctors.update');
     });
 
     Route::prefix('receptionist')->middleware('role:admin,receptionist')->group(function () {
@@ -40,40 +41,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/appointments/{appointment}', [ReceptionistAppointmentController::class, 'updateStatus'])->name('receptionist.appointments.update');
     });
 
-
- Route::get('/patient/appointment/book', [AppointmentController::class, 'create'])
+    Route::get('/patient/appointment/book', [AppointmentController::class, 'create'])
         ->middleware('role:patient')
         ->name('patient.appointment.book');
-
     Route::post('/patient/appointment/book', [AppointmentController::class, 'store'])
         ->middleware('role:patient')
         ->name('patient.appointment.book.store');
-         Route::get('/doctor/dashboard', [DoctorController::class, 'index'])
+    Route::get('/doctor/dashboard', [DoctorController::class, 'index'])
         ->middleware('role:doctor')
         ->name('doctor.dashboard');
     Route::get('/patient/dashboard', [PatientController::class, 'dashboard'])
         ->middleware('role:patient')
         ->name('patient.dashboard');
-            Route::patch('/patient/appointment/{appointment}/reschedule', [PatientController::class, 'reschedule'])
+    Route::patch('/patient/appointment/{appointment}/reschedule', [PatientController::class, 'reschedule'])
         ->middleware('role:patient')
         ->name('patient.reschedule');
-
     Route::patch('/doctor/appointment/{appointment}', [DoctorController::class, 'updateAppointmentStatus'])
         ->middleware('role:doctor')
         ->name('doctor.appointment.update');
-    
-});
-  Route::post('/doctor/availability', [DoctorController::class, 'storeAvailability'])
+    Route::post('/doctor/availability', [DoctorController::class, 'storeAvailability'])
         ->middleware('role:doctor')
         ->name('doctor.storeAvailability');
-        
-         Route::get('/patient/confirm/{availability}', [PatientController::class, 'confirm'])
+    Route::get('/patient/confirm/{availability}', [PatientController::class, 'confirm'])
         ->middleware('role:patient')
         ->name('patient.confirm');
-
     Route::post('/patient/book/{availability}', [PatientController::class, 'book'])
         ->middleware('role:patient')
         ->name('patient.book');
+    Route::get('/doctor/medical-history/{patient}', [DoctorController::class, 'viewMedicalHistory'])
+    ->middleware('role:doctor')
+    ->name('doctor.medical-history');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

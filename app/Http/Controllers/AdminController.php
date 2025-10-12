@@ -85,6 +85,7 @@ class AdminController extends Controller
         return redirect()->route('admin.patients.index')
             ->with('success', 'Patient updated successfully.');
     }
+
     public function analytics()
     {
         $totalAppointments = Appointment::count();
@@ -98,5 +99,88 @@ class AdminController extends Controller
             ->get();
 
         return view('admin.analytics', compact('totalAppointments', 'byStatus', 'byDate'));
+    }
+
+    public function doctors(Request $request)
+    {
+        $search = $request->query('search');
+        $doctors = Doctor::with('user')
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(10);
+
+        return view('admin.doctors.index', compact('doctors', 'search'));
+    }
+
+    public function createDoctor()
+    {
+        return view('admin.doctors.create');
+    }
+
+    public function storeDoctor(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'specialization' => 'required|string|max:100',
+            'schedule' => 'required|json',
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+            'contact' => 'required|string|max:20',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'role' => 'doctor',
+        ]);
+
+        Doctor::create([
+            'user_id' => $user->id,
+            'specialization' => $validated['specialization'],
+            'schedule' => $validated['schedule'], // Removed json_decode
+            'status' => $validated['status'],
+            'contact' => $validated['contact'],
+        ]);
+
+        return redirect()->route('admin.doctors.index')
+            ->with('success', 'Doctor created successfully.');
+    }
+
+    public function editDoctor(Doctor $doctor)
+    {
+        return view('admin.doctors.edit', compact('doctor'));
+    }
+
+    public function updateDoctor(Request $request, Doctor $doctor)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($doctor->user->id)],
+            'specialization' => 'required|string|max:100',
+            'schedule' => 'required|json',
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+            'contact' => 'required|string|max:20',
+        ]);
+
+        $doctor->user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        $doctor->update([
+            'specialization' => $validated['specialization'],
+            'schedule' => $validated['schedule'], // Removed json_decode
+            'status' => $validated['status'],
+            'contact' => $validated['contact'],
+        ]);
+
+        return redirect()->route('admin.doctors.index')
+            ->with('success', 'Doctor updated successfully.');
     }
 }

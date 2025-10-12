@@ -45,6 +45,7 @@
                                 <th class="px-4 py-2 text-left">Date & Time</th>
                                 <th class="px-4 py-2 text-left">Status</th>
                                 <th class="px-4 py-2 text-left">Action</th>
+                                <th class="px-4 py-2 text-left">History</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,10 +65,13 @@
                                             <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Update</button>
                                         </form>
                                     </td>
+                                    <td class="border px-4 py-2">
+                                        <a href="{{ route('doctor.medical-history', $appointment->patient) }}" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">View History</a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="border px-4 py-2 text-center">No upcoming appointments.</td>
+                                    <td colspan="5" class="border px-4 py-2 text-center">No upcoming appointments.</td>
                                 </tr>
                             @endforelse
                         </tbody>

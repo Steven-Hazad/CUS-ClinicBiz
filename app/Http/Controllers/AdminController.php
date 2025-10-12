@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
 use App\Models\Billing;
+use App\Models\Medicine;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -144,7 +145,7 @@ class AdminController extends Controller
         Doctor::create([
             'user_id' => $user->id,
             'specialization' => $validated['specialization'],
-            'schedule' => $validated['schedule'], // Removed json_decode
+            'schedule' => $validated['schedule'],
             'status' => $validated['status'],
             'contact' => $validated['contact'],
         ]);
@@ -176,7 +177,7 @@ class AdminController extends Controller
 
         $doctor->update([
             'specialization' => $validated['specialization'],
-            'schedule' => $validated['schedule'], // Removed json_decode
+            'schedule' => $validated['schedule'],
             'status' => $validated['status'],
             'contact' => $validated['contact'],
         ]);
@@ -189,5 +190,27 @@ class AdminController extends Controller
     {
         $billings = Billing::with('appointment.patient.user', 'appointment.doctor.user')->paginate(10);
         return view('admin.billings.index', compact('billings'));
+    }
+
+    public function medicines()
+    {
+        $medicines = Medicine::all();
+        return view('admin.medicines.index', compact('medicines'));
+    }
+
+    public function storeMedicine(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'stock_quantity' => 'required|integer|min:0',
+            'expiry_date' => 'required|date|after:today',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        Medicine::create($validated);
+
+        return redirect()->route('admin.medicines.index')
+            ->with('success', 'Medicine added successfully.');
     }
 }

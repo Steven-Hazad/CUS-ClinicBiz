@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/doctors/{doctor}/edit', [AdminController::class, 'editDoctor'])->name('admin.doctors.edit');
         Route::put('/doctors/{doctor}', [AdminController::class, 'updateDoctor'])->name('admin.doctors.update');
         Route::get('/billings', [AdminController::class, 'billings'])->name('admin.billings.index');
+        Route::get('/medicines', [AdminController::class, 'medicines'])->name('admin.medicines.index');
+        Route::post('/medicines', [AdminController::class, 'storeMedicine'])->name('admin.medicines.store');
     });
 
     Route::prefix('receptionist')->middleware('role:admin,receptionist')->group(function () {
@@ -72,6 +74,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/doctor/medical-history/{patient}', [DoctorController::class, 'viewMedicalHistory'])
         ->middleware('role:doctor')
         ->name('doctor.medical-history');
+    Route::post('/doctor/medical-record/{patient}', [DoctorController::class, 'storeMedicalRecord'])
+        ->middleware('role:doctor')
+        ->name('doctor.storeMedicalRecord');
 
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

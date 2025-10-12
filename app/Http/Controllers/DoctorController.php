@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Availability;
+use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Notifications\NewAvailabilityNotification;
@@ -96,5 +97,34 @@ class DoctorController extends Controller
         }
 
         return view('doctor.medical-history', compact('patient'));
+    }
+
+    public function storeMedicalRecord(Request $request, \App\Models\Patient $patient)
+    {
+        if (!auth()->user()->doctor->appointments()->where('patient_id', $patient->id)->exists()) {
+            return back()->withErrors(['message' => 'Unauthorized action.']);
+        }
+
+        $validated = $request->validate([
+            'notes' => 'required|string|max:1000',
+            'file' => 'nullable|file|mimes:pdf,jpeg,png|max:2048',
+            'record_date' => 'required|date',
+        ]);
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('medical_records', 'public');
+        }
+
+        MedicalRecord::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => auth()->user()->doctor->id,
+            'notes' => $validated['notes'],
+            'file_path' => $filePath,
+            'record_date' => $validated['record_date'],
+        ]);
+
+        return redirect()->route('doctor.medical-history', $patient)
+            ->with('success', 'Medical record added.');
     }
 }
